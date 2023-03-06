@@ -19,27 +19,25 @@
         </div>
 
         <div class="product-info">
-
             <h1>{{ product }}</h1>
             <p v-if="inStock">In stock</p>
             <p v-else>Out of Stock</p>
             <ul>
                 <li v-for="detail in details">{{ detail }}</li>
             </ul>
+
             <div v-for="variant in variants" :key="variant.variantId">
                 <p @mouseover="updateProduct(variant.variantImage)">
                     {{ variant.variantColor }}
                 </p>
             </div>
+
             <div class="cart">
                 <p>Cart({{ cart }})</p>
             </div>
 
-            <div class="buttons">
-                <button v-on:click="cart += 1">В корзину</button>
-                <button v-if="cart >= 1" v-on:click="cart -= 1">Удалить</button>
-            </div>
-
+            <button v-on:click="addToCart">Добавить</button>
+            <button v-on:click="removeCart" v-if="cart >= 1">Удалить</button>
         </div>
 
     </div>
