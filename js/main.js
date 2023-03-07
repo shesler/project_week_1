@@ -41,7 +41,6 @@ Vue.component('product', {
             <p>Доставка: {{ shipping }}</p>
             
             <p>Компоненты:</p>
-            
             <product-details :details="details"></product-details>
             
             <div
@@ -53,12 +52,8 @@ Vue.component('product', {
             >
             </div>
 
-            <div class="cart">
-                <p>Корзина ({{ cart }})</p>
-            </div>
-
-            <button v-on:click="addToCart" :disabled="!inStock" :class="{ disabledButton: !inStock }">Добавить</button>
-            <button v-on:click="removeCart" v-if="cart >= 1">Удалить</button>
+            <button v-on:click="addToCart">Добавить</button>
+            <button v-on:click="removeFromCart">Удалить</button>
 
         </div>
 
@@ -89,18 +84,18 @@ Vue.component('product', {
                     variantSale: ''
                 }
             ],
-            cart: 0
         }
     },
     methods: {
         addToCart() {
-            this.cart += 1
+            this.$emit('add-to-cart', this.variants[this.selectedVariant].variantId);
         },
-        removeCart() {
-            this.cart -= 1
+        removeFromCart: function() {
+            this.$emit('remove-from-cart', this.variants[this.selectedVariant].variantId);
         },
         updateProduct(index) {
             this.selectedVariant = index;
+            console.log(index);
         }
     },
     computed: {
@@ -133,13 +128,23 @@ Vue.component('product', {
 
 
 
-
 let app = new Vue({
     el: '#app',
     data: {
-        premium: false
+        premium: false,
+        cart: []
+    },
+    methods: {
+        updateCart(id) {
+            this.cart.push(id)
+        },
+        removeCart(id){
+            this.cart.pop(id)
+        }
     }
+
 })
+
 
 
 
