@@ -13,14 +13,14 @@ let app = new Vue({
                 variantColor: 'green',
                 variantImage: "./assets/vmSocks-green-onWhite.jpg",
                 variantQuantity: 10,
-                variantSale: true
+                variantSale: '(SALE)'
             },
             {
                 variantId: 2235,
                 variantColor: 'blue',
                 variantImage: "./assets/vmSocks-blue-onWhite.jpg",
                 variantQuantity: 0,
-                variantSale: true
+                variantSale: ''
             }
         ],
         cart: 0
