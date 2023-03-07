@@ -1,5 +1,25 @@
+Vue.component('product-details', {
+    props: {
+        details: {
+            type: Array,
+            required: true
+        }
+    },
+    template: `
+    <ul>
+      <li v-for="detail in details">{{ detail }}</li>
+    </ul>
+  `
+})
 
 Vue.component('product', {
+    props: {
+        premium: {
+            type: Boolean,
+            required: false
+        },
+    },
+
     template: `
    <div class="product">
             <div class="product">
@@ -9,19 +29,21 @@ Vue.component('product', {
 
         <div class="product-info">
             <h1>{{ title + onSale }}</h1>
-            <p v-if="inStock">In stock</p>
+            <p v-if="inStock">В наличии</p>
 
             <p
                     v-else
                     class="outOfStock"
             >
-                Out of Stock
+                Нет в наличии
             </p>
-
-            <ul>
-                <li v-for="detail in details">{{ detail }}</li>
-            </ul>
-
+            
+            <p>Доставка: {{ shipping }}</p>
+            
+            <p>Компоненты:</p>
+            
+            <product-details :details="details"></product-details>
+            
             <div
                     class="color-box"
                     v-for="(variant, index) in variants"
@@ -32,7 +54,7 @@ Vue.component('product', {
             </div>
 
             <div class="cart">
-                <p>Cart({{ cart }})</p>
+                <p>Корзина ({{ cart }})</p>
             </div>
 
             <button v-on:click="addToCart" :disabled="!inStock" :class="{ disabledButton: !inStock }">Добавить</button>
@@ -45,12 +67,12 @@ Vue.component('product', {
  `,
     data() {
         return {
-            product: "Socks",
-            brand: 'Vue Mastery',
+            product: "носочки",
+            brand: 'Тёплые',
             sale: '',
+            details: ['80% хлопок', '20% полиэстер'],
             selectedVariant: 0,
             altText: "A pair of socks",
-            details: ['80% cotton', '20% polyester', 'Gender-neutral'],
             variants: [
                 {
                     variantId: 2234,
@@ -93,14 +115,29 @@ Vue.component('product', {
         },
         onSale(){
             return this.variants[this.selectedVariant].variantSale;
-        }
+        },
+        shipping() {
+            if (this.premium) {
+                return 'Бесплатно';
+            } else {
+                return '499.90 RUB';
+            }
+        },
+
+
+
     }
 })
+
+
+
+
+
 
 let app = new Vue({
     el: '#app',
     data: {
-        premium: true
+        premium: false
     }
 })
 
