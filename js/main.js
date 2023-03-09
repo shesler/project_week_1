@@ -1,3 +1,50 @@
+let eventBus = new Vue()
+
+Vue.component('product-tabs', {
+    props: {
+        reviews: {
+            type: Array,
+            required: false
+        }
+    },
+    template: `
+     <div>   
+       <ul>
+         <span class="tab"
+               :class="{ activeTab: selectedTab === tab }"
+               v-for="(tab, index) in tabs"
+               @click="selectedTab = tab"
+         >{{ tab }}</span>
+       </ul>
+       <div v-show="selectedTab === 'Reviews'">
+         <p v-if="!reviews.length">There are no reviews yet.</p>
+         <ul>
+           <li v-for="review in reviews">
+           <p>{{ review.name }}</p>
+           <p>Rating: {{ review.rating }}</p>
+           <p>{{ review.review }}</p>
+           </li>
+         </ul>
+       </div>
+       <div v-show="selectedTab === 'Make a Review'">
+                 <product-review 
+            v-show="selectedTab !== 'Reviews'"
+            ></product-review>
+       </div>
+     </div>
+`,
+    data() {
+        return {
+            tabs: ['Reviews', 'Make a Review'],
+            selectedTab: 'Reviews'  // устанавливается с помощью @click
+        }
+    }
+})
+
+
+
+
+
 Vue.component('product-details', {
     props: {
         details: {
@@ -12,6 +59,11 @@ Vue.component('product-details', {
   `
 })
 
+
+
+
+
+
 Vue.component('product', {
     props: {
         premium: {
@@ -22,53 +74,45 @@ Vue.component('product', {
 
     template: `
    <div class="product">
-            <div class="product">
-        <div class="product-image">
-            <img :src="image" :alt="altText"/>
-        </div>
-
-        <div class="product-info">
-            <h1>{{ title + onSale }}</h1>
-            <p v-if="inStock">В наличии</p>
-
-            <p
-                    v-else
-                    class="outOfStock"
-            >
-                Нет в наличии
-            </p>
-            
-            <p>Доставка: {{ shipping }}</p>
-            
-            <p>Компоненты:</p>
-            <product-details :details="details"></product-details>
-            
-            <div
-                    class="color-box"
+   
+   <div class="product-image">
+         <img :src="image" />
+      </div>
+      <div class="product-info">
+            <h1>{{ title }}</h1>
+            <p v-if="inStock > 5 ">In Stock</p>
+            <p v-else-if="inStock <= 5 && inStock > 0">Almost Sold Out</p>
+            <p v-else="Instok"
+            :class="{ outStock: !inStock }"
+            >Out of Stock</p>
+            <p>{{ sale }}</p>
+            <info-tabs :shipping="shipping" :details="details"></info-tabs>
+            <div class="color-box"
                     v-for="(variant, index) in variants"
                     :key="variant.variantId"
-                    :style="{ backgroundColor:variant.variantColor }"
-                    @mouseover="updateProduct(index)"
-            >
+                    :style="{ backgroundColor: variant.variantColor }"
+                 @mouseover="updateProduct(index)">
             </div>
-
-            <button v-on:click="addToCart">Добавить</button>
-            <button v-on:click="removeFromCart">Удалить</button>
-
-        </div>
-                    <div>
-                        <h2>Reviews</h2>
-                        <p v-if="!reviews.length">There are no reviews yet.</p>
-                        <ul>
-                            <li v-for="review in reviews">
-                                <p>{{ review.name }}</p>
-                                <p>Rating: {{ review.rating }}</p>
-                                <p>{{ review.review }}</p>
-                            </li>
-                        </ul>
-                    </div>
-     </div>
+            <a :href="link">More products like this</a><br>
+            <button v-on:click="addToCart" 
+              :disabled="!inStock"
+              :class="{ disabledButton: !inStock }"
+              >
+            Add to cart
+            </button>
+            <button @click="removeFromCart" 
+              >
+            Remove from cart
+            </button>
    </div>
+<div>
+            
+           </div>
+            
+         <product-tabs :reviews="reviews"></product-tabs>
+       
+       </div>
+             
  `,
     data() {
         return {
@@ -129,11 +173,21 @@ Vue.component('product', {
                 return '499.90 RUB';
             }
         },
+        mounted() {
+            eventBus.$on('review-submitted', productReview => {
+                this.reviews.push(productReview)
+            })
+        }
+
 
 
 
     }
 })
+
+
+
+
 
 
 Vue.component('product-review', {
@@ -199,7 +253,7 @@ Vue.component('product-review', {
                     rating: this.rating,
                     answer: this.answer
                 }
-                this.$emit('review-submitted', productReview)
+                eventBus.$emit('review-submitted', productReview)
                 this.name = null
                 this.review = null
                 this.rating = null
@@ -215,6 +269,48 @@ Vue.component('product-review', {
             this.reviews.push(productReview)
         }
 
+    }
+})
+
+
+
+Vue.component('info-tabs', {
+    props: {
+        shipping: {
+            required: true
+        },
+        details: {
+            type: Array,
+            required: true
+        }
+    },
+    template: `
+      <div>
+      
+        <ul>
+          <span class="tab" 
+                :class="{ activeTab: selectedTab === tab }"
+                v-for="(tab, index) in tabs"
+                @click="selectedTab = tab"
+                :key="tab"
+          >{{ tab }}</span>
+        </ul>
+        <div v-show="selectedTab === 'Shipping'">
+          <p>{{ shipping }}</p>
+        </div>
+        <div v-show="selectedTab === 'Details'">
+          <ul>
+            <li v-for="detail in details">{{ detail }}</li>
+          </ul>
+        </div>
+    
+      </div>
+    `,
+    data() {
+        return {
+            tabs: ['Shipping', 'Details'],
+            selectedTab: 'Shipping'
+        }
     }
 })
 
